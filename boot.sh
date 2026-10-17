@@ -13,6 +13,13 @@ log "== boot (image ready)"
 [ -e $W/ComfyUI ] || ln -s $C $W/ComfyUI
 python3 /opt/podsrv.py 8000 &
 
+# Fail fast on a broken host (17-oct: a Community 5090 gave "CUDA unknown error" after 33 min of downloads).
+if ! python -c "import torch; torch.zeros(1).cuda(); print(torch.cuda.get_device_name(0))" >> $W/_status/boot.log 2>&1; then
+  log "CUDA FAIL"
+  sleep infinity
+fi
+log "CUDA ok"
+
 mkdir -p $M/diffusion_models $M/text_encoders $M/vae $M/loras $M/latent_upscale_models $M/model_patches
 export HF_HUB_ENABLE_HF_TRANSFER=1
 dl() { # repo  path_in_repo  dest_dir  [dest_name]
