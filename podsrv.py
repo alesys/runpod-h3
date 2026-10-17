@@ -15,7 +15,8 @@ TOKEN = os.environ.get("POD_TOKEN", "")
 
 def safe(rel):
     p = os.path.realpath(os.path.join(ROOT, rel))
-    if not p.startswith(ROOT + "/"):
+    # without a network volume /workspace/ComfyUI is a symlink to /opt/ComfyUI (the image)
+    if not (p.startswith(ROOT + "/") or p.startswith("/opt/ComfyUI/")):
         raise ValueError("outside workspace")
     return p
 
