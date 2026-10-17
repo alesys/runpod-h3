@@ -28,16 +28,17 @@ PY
   [ -s "$3/$name" ] && log "ok $name" || log "FAIL $name"
 }
 H3=Comfy-Org/MiniMax-H3
+PIDS=()
 # In parallel: the big ones dominate; the small ones finish in seconds.
-dl $H3 text_encoders/qwen3vl_32b_minimax_h3_int8_convrot.safetensors $M/text_encoders &
-dl $H3 diffusion_models/minimax_h3_ref2va_pruned_int8_convrot.safetensors $M/diffusion_models &
-dl $H3 diffusion_models/minimax_h3_fl2va_pruned_int8_convrot.safetensors $M/diffusion_models &
-dl $H3 vae/minimax_h3_video_vae_fp16.safetensors $M/vae &
-dl $H3 vae/minimax_h3_audio_vae_fp32.safetensors $M/vae &
-dl $H3 model_patches/minimax_h3_fun_controlnet_union_2.0_pruned_int8_convrot.safetensors $M/model_patches &
-dl drbaph/MiniMax-H3-Turbo-Lora-ComfyUI minimax_h3_turbo_v4_step600_ema_pruned_comfyui.safetensors $M/loras &
-dl LBH-123-AI/Minimax_h3_latent_Upscaler minimax_h3_latent_upscaler_3d_conv_v1/minimax_h3_latent_upscaler_3d_conv_v1_fp16.safetensors $M/latent_upscale_models minimax_h3_latent_upscaler_3d_fp16.safetensors &
-wait
+dl $H3 text_encoders/qwen3vl_32b_minimax_h3_int8_convrot.safetensors $M/text_encoders & PIDS+=($!)
+dl $H3 diffusion_models/minimax_h3_ref2va_pruned_int8_convrot.safetensors $M/diffusion_models & PIDS+=($!)
+dl $H3 diffusion_models/minimax_h3_fl2va_pruned_int8_convrot.safetensors $M/diffusion_models & PIDS+=($!)
+dl $H3 vae/minimax_h3_video_vae_fp16.safetensors $M/vae & PIDS+=($!)
+dl $H3 vae/minimax_h3_audio_vae_fp32.safetensors $M/vae & PIDS+=($!)
+dl $H3 model_patches/minimax_h3_fun_controlnet_union_2.0_pruned_int8_convrot.safetensors $M/model_patches & PIDS+=($!)
+dl drbaph/MiniMax-H3-Turbo-Lora-ComfyUI minimax_h3_turbo_v4_step600_ema_pruned_comfyui.safetensors $M/loras & PIDS+=($!)
+dl LBH-123-AI/Minimax_h3_latent_Upscaler minimax_h3_latent_upscaler_3d_conv_v1/minimax_h3_latent_upscaler_3d_conv_v1_fp16.safetensors $M/latent_upscale_models minimax_h3_latent_upscaler_3d_fp16.safetensors & PIDS+=($!)
+wait "${PIDS[@]}"   # only the downloads: a bare wait also waits for podsrv, which never exits
 rm -rf $M/*/.hf
 log "models done in $(( $(date +%s) - T0 )) s ($(du -sh $M | cut -f1))"
 
