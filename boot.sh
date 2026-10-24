@@ -45,6 +45,9 @@ dl $H3 vae/minimax_h3_audio_vae_fp32.safetensors $M/vae & PIDS+=($!)
 dl $H3 model_patches/minimax_h3_fun_controlnet_union_2.0_pruned_int8_convrot.safetensors $M/model_patches & PIDS+=($!)
 dl drbaph/MiniMax-H3-Turbo-Lora-ComfyUI minimax_h3_turbo_v4_step600_ema_pruned_comfyui.safetensors $M/loras & PIDS+=($!)
 dl LBH-123-AI/Minimax_h3_latent_Upscaler minimax_h3_latent_upscaler_3d_conv_v1/minimax_h3_latent_upscaler_3d_conv_v1_fp16.safetensors $M/latent_upscale_models minimax_h3_latent_upscaler_3d_fp16.safetensors & PIDS+=($!)
+# Singularity V2 (ref2va fine-tune) + its 4-step turbo LoRA
+dl WarmBloodAban/Minimax-h3_Singularity Minimax-h3_Singularity_ref2va_v2_int8.safetensors $M/diffusion_models & PIDS+=($!)
+dl RunningHubAI/rh-minimax-h3-ref2v-turbo-4step-v0.1-comfyui-bf16.safetensors-lora minimax_h3_ref2v_turbo_4step_v0.1_comfyui_bf16.safetensors $M/loras & PIDS+=($!)
 wait "${PIDS[@]}"   # only the downloads: a bare wait also waits for podsrv, which never exits
 rm -rf $M/*/.hf
 log "models done in $(( $(date +%s) - T0 )) s ($(du -sh $M | cut -f1))"
