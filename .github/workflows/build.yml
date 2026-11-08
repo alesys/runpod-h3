@@ -11,6 +11,17 @@ permissions:
 jobs:
   image:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - cu: cu130
+            tags: |
+              ghcr.io/alesys/runpod-h3:latest
+              ghcr.io/alesys/runpod-h3:cu130
+          - cu: cu129
+            tags: |
+              ghcr.io/alesys/runpod-h3:cu129
     steps:
       # torch cu130 makes the image ~10 GB; the runner's default free disk is not enough.
       - name: Free disk
@@ -29,6 +40,7 @@ jobs:
         with:
           context: .
           push: true
+          build-args: TORCH_CU=${{ matrix.cu }}
           tags: |
-            ghcr.io/alesys/runpod-h3:latest
-            ghcr.io/alesys/runpod-h3:${{ github.sha }}
+            ${{ matrix.tags }}
+            ghcr.io/alesys/runpod-h3:${{ matrix.cu }}-${{ github.sha }}
