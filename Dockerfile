@@ -10,10 +10,12 @@ RUN apt-get update -qq && apt-get install -y -qq --no-install-recommends \
 RUN python3 -m venv /opt/venv
 ENV PATH=/opt/venv/bin:$PATH
 
-# torch cu130: ComfyUI only enables its optimized CUDA ops from cu130 up.
-# rp.py asks RunPod for hosts with CUDA >= 13.0 so the driver matches.
+# torch cu130 (tags :latest, :cu130): ComfyUI only enables its optimized CUDA ops from cu130 up.
+# torch cu129 (tag :cu129): fallback for hosts with a CUDA 12.9 driver (575-579), which cannot run cu130.
+# rp.py tries cu130 hosts first, then cu129 hosts.
+ARG TORCH_CU=cu130
 RUN pip install -q --upgrade pip && \
-    pip install -q torch==2.13.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/cu130
+    pip install -q torch==2.13.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/${TORCH_CU}
 
 # Same ComfyUI commit as the network volume install (known good with H3).
 ARG COMFY_COMMIT=b5cc8830279eae909a59de030af1e50761c36751
